@@ -1,12 +1,14 @@
 import React from 'react';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'outline-light' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   href?: string;
   target?: string;
   rel?: string;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
   children: React.ReactNode;
 }
 
@@ -17,13 +19,14 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   target,
   rel,
+  disabled,
+  type = 'button',
   children,
   className = '',
-  disabled,
   ...rest
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg select-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg select-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
 
   const sizeStyles = {
     sm: 'text-xs md:text-sm px-3.5 py-2 min-h-[40px]',
@@ -55,6 +58,7 @@ export const Button: React.FC<ButtonProps> = ({
         target={target}
         rel={target === '_blank' && !rel ? 'noopener noreferrer' : rel}
         className={combinedStyles}
+        {...rest}
       >
         {children}
       </a>
@@ -62,7 +66,12 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   return (
-    <button className={combinedStyles} disabled={disabled} {...rest}>
+    <button
+      type={type}
+      className={combinedStyles}
+      disabled={disabled}
+      {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+    >
       {children}
     </button>
   );

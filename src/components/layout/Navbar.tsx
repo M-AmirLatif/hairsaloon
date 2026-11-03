@@ -32,7 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
   const sectionIds = navLinks.map(l => l.id);
   const activeSectionId = useScrollSpy(sectionIds, 120);
 
-  // Scroll listener for sticky navbar blur state
+  // Scroll listener for sticky navbar background state
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -73,24 +73,53 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen]);
 
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
+  // Smooth scroll handler for both mobile and desktop
+  const handleNavLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+
+      // Close mobile drawer first
+      setMobileMenuOpen(false);
+
+      // Immediately unlock body scroll so browser can scroll freely
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+
+      const targetId = href.replace('#', '');
+      const targetElement = document.getElementById(targetId);
+
+      if (targetId === 'hero') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      try {
+        window.history.pushState(null, '', href);
+      } catch {
+        // Ignore state push errors in sandboxes
+      }
+    }
   };
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-[#0F0F10]/92 backdrop-blur-md border-b border-[#2A2A2D] shadow-lg shadow-black/30 py-3'
-          : 'bg-transparent py-4 md:py-6'
+      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-200 ${
+        isScrolled || mobileMenuOpen
+          ? 'bg-[#0F0F10]/95 backdrop-blur-md border-b border-[#2A2A2D] shadow-lg shadow-black/40'
+          : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex items-center justify-between" aria-label="Main Navigation">
+        <nav className="flex items-center justify-between h-16 md:h-20" aria-label="Main Navigation">
           {/* Logo link */}
           <a
             href="#hero"
-            className="focus-visible:outline-2 focus-visible:outline-[#C9A96E] rounded-md"
+            onClick={(e) => handleNavLinkClick(e, '#hero')}
+            className="focus-visible:outline-2 focus-visible:outline-[#C9A96E] rounded-md transition-transform active:scale-[0.98]"
           >
             <BrandLogo identity={salon.identity} size="md" />
           </a>
@@ -103,6 +132,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
                 <li key={link.id}>
                   <a
                     href={link.href}
+                    onClick={(e) => handleNavLinkClick(e, link.href)}
                     aria-current={isActive ? 'page' : undefined}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
@@ -127,7 +157,12 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
               <span>{salon.contact.phoneDisplay}</span>
             </a>
 
-            <Button href="#booking" size="sm" variant="primary">
+            <Button
+              href="#booking"
+              size="sm"
+              variant="primary"
+              onClick={(e) => handleNavLinkClick(e as unknown as React.MouseEvent<HTMLAnchorElement>, '#booking')}
+            >
               <Calendar className="w-4 h-4 mr-1.5" aria-hidden="true" />
               Book Appointment
             </Button>
@@ -137,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
           <div className="flex items-center gap-2 lg:hidden">
             <a
               href={`tel:${salon.contact.phoneTel}`}
-              className="p-2.5 rounded-lg bg-[#161618] text-[#C9A96E] border border-[#2A2A2D] hover:bg-[#2A2A2D] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+              className="p-2.5 rounded-lg bg-[#161618] text-[#C9A96E] border border-[#2A2A2D] hover:bg-[#2A2A2D] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[#C9A96E] active:scale-95"
               aria-label={`Call ${salon.contact.phoneDisplay}`}
             >
               <Phone className="w-4 h-4" aria-hidden="true" />
@@ -149,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav-drawer"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="p-2.5 rounded-lg bg-[#161618] text-[#F5F0E8] border border-[#2A2A2D] hover:bg-[#2A2A2D] hover:text-[#C9A96E] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+              className="p-2.5 rounded-lg bg-[#161618] text-[#F5F0E8] border border-[#2A2A2D] hover:bg-[#2A2A2D] hover:text-[#C9A96E] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-2 focus-visible:outline-[#C9A96E] active:scale-95 cursor-pointer"
             >
               {mobileMenuOpen ? (
                 <X className="w-6 h-6" aria-hidden="true" />
@@ -161,12 +196,12 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
         </nav>
       </div>
 
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile Drawer Overlay: smooth slide-down + fade */}
       {mobileMenuOpen && (
         <div
           id="mobile-nav-drawer"
           ref={mobileMenuRef}
-          className="fixed inset-0 top-[65px] z-50 bg-[#0F0F10]/98 backdrop-blur-xl border-t border-[#2A2A2D] lg:hidden flex flex-col justify-between p-6 overflow-y-auto animate-in fade-in duration-200"
+          className="fixed top-16 inset-x-0 h-[calc(100dvh-4rem)] z-50 bg-[#0F0F10]/98 backdrop-blur-xl border-t border-[#2A2A2D] lg:hidden flex flex-col justify-between p-6 pb-28 overflow-y-auto overscroll-contain animate-drawer-in"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation"
@@ -176,22 +211,23 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
               Navigation
             </p>
             <ul className="flex flex-col gap-1">
-              {navLinks.map(link => {
+              {navLinks.map((link, idx) => {
                 const isActive = activeSectionId === link.id;
+                const formattedIndex = String(idx + 1).padStart(2, '0');
                 return (
                   <li key={link.id}>
                     <a
                       href={link.href}
-                      onClick={closeMobileMenu}
+                      onClick={(e) => handleNavLinkClick(e, link.href)}
                       aria-current={isActive ? 'page' : undefined}
-                      className={`flex items-center justify-between px-4 py-3 rounded-lg text-lg font-medium transition-colors min-h-[48px] ${
+                      className={`flex items-center justify-between px-4 py-3.5 rounded-lg text-lg font-medium transition-all active:scale-[0.98] min-h-[50px] ${
                         isActive
                           ? 'text-[#C9A96E] bg-white/5 font-semibold'
-                          : 'text-[#F5F0E8] hover:text-[#C9A96E] hover:bg-white/5'
+                          : 'text-[#F5F0E8] hover:text-[#C9A96E] hover:bg-white/5 active:bg-white/10'
                       }`}
                     >
                       <span>{link.label}</span>
-                      <span className="text-xs text-[#8A857B]">{link.id === 'hero' ? '01' : ''}</span>
+                      <span className="text-xs text-[#8A857B] font-mono">{formattedIndex}</span>
                     </a>
                   </li>
                 );
@@ -205,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
               variant="primary"
               size="lg"
               fullWidth
-              onClick={closeMobileMenu}
+              onClick={(e) => handleNavLinkClick(e as unknown as React.MouseEvent<HTMLAnchorElement>, '#booking')}
             >
               <Calendar className="w-5 h-5 mr-2" aria-hidden="true" />
               Book Appointment
@@ -213,7 +249,7 @@ export const Navbar: React.FC<NavbarProps> = ({ salon }) => {
 
             <a
               href={`tel:${salon.contact.phoneTel}`}
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[#161618] border border-[#2A2A2D] text-[#F5F0E8] hover:text-[#C9A96E] font-medium text-base min-h-[48px] transition-colors"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[#161618] border border-[#2A2A2D] text-[#F5F0E8] hover:text-[#C9A96E] font-medium text-base min-h-[48px] transition-colors active:scale-[0.98]"
             >
               <Phone className="w-4 h-4 text-[#C9A96E]" aria-hidden="true" />
               <span>Call: {salon.contact.phoneDisplay}</span>
