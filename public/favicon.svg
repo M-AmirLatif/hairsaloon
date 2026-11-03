@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0F0F10"/>
+  <rect x="2" y="2" width="60" height="60" rx="12" stroke="#C9A96E" stroke-opacity="0.3" stroke-width="2"/>
+  <!-- Stylized Barber Shears / S monogram in Gold -->
+  <path d="M22 18C22 15.7909 23.7909 14 26 14C28.2091 14 30 15.7909 30 18C30 20.2091 28.2091 22 26 22H24" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M28 21L42 46" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M42 18C42 15.7909 40.2091 14 38 14C35.7909 14 34 15.7909 34 18C34 20.2091 35.7909 22 38 22H40" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M36 21L22 46" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="32" cy="33.5" r="2.5" fill="#C9A96E"/>
+  <!-- Comb accent line -->
+  <path d="M20 50H44" stroke="#9C7A56" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24 50V54" stroke="#9C7A56" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M28 50V54" stroke="#9C7A56" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 50V54" stroke="#9C7A56" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M36 50V54" stroke="#9C7A56" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M40 50V54" stroke="#9C7A56" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
